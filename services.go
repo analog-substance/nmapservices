@@ -25,7 +25,7 @@ const (
 var (
 	defaultServicesPath string         = filepath.FromSlash("/usr/share/nmap/nmap-services")
 	portLineRe          *regexp.Regexp = regexp.MustCompile(`^([^\t]+)\t([0-9]+)/(tcp|udp)\t([0-9\.]+)`)
-	//portsCache          []PortInfo // Will probably want to have a cache of all the ports for efficiency at some point
+	portsCache          []PortInfo
 )
 
 type PortInfo struct {
@@ -58,37 +58,51 @@ func getFile() fs.File {
 	return file
 }
 
-func Ports(protocol Protocol, services ...string) []PortInfo {
-	file := getFile()
-	lines := grep.FileLineByLine(file, portLineRe)
+func getAllPorts() []PortInfo {
+	if len(portsCache) == 0 {
+		file := getFile()
+		lines := grep.FileLineByLine(file, portLineRe)
 
-	var ports []PortInfo
-	for line := range lines {
-		matches := portLineRe.FindStringSubmatch(line)
+		for line := range lines {
+			matches := portLineRe.FindStringSubmatch(line)
 
-		portNumber, _ := strconv.Atoi(matches[2])
-		weight, _ := strconv.ParseFloat(matches[4], 32)
-		proto := matches[3]
-		service := matches[1]
+			portNumber, _ := strconv.Atoi(matches[2])
+			weight, _ := strconv.ParseFloat(matches[4], 32)
+			protocol := matches[3]
+			service := matches[1]
 
-		portInfo := PortInfo{
-			Service:  service,
-			Protocol: proto,
-			Port:     portNumber,
-			Weight:   weight,
+			portsCache = append(portsCache, PortInfo{
+				Service:  service,
+				Protocol: protocol,
+				Port:     portNumber,
+				Weight:   weight,
+			})
 		}
 
-		if (strings.EqualFold(proto, string(protocol)) || protocol == Any) &&
-			portInfo.ServiceMatch(services...) {
-			ports = append(ports, portInfo)
+		sort.SliceStable(portsCache, func(i, j int) bool {
+			return portsCache[i].Weight > portsCache[j].Weight
+		})
+	}
+
+	return portsCache
+}
+
+func Ports(protocol Protocol, services ...string) []PortInfo {
+	allPorts := getAllPorts()
+
+	var ports []PortInfo
+	for _, port := range allPorts {
+		if (strings.EqualFold(port.Protocol, string(protocol)) || protocol == Any) &&
+			port.ServiceMatch(services...) {
+			ports = append(ports, port)
 		}
 	}
 
-	sort.SliceStable(ports, func(i, j int) bool {
-		return ports[i].Weight > ports[j].Weight
-	})
-
 	return ports
+}
+
+func TCPPorts(services ...string) []PortInfo {
+	return Ports(TCP, services...)
 }
 
 func TopTCPPorts(num int, services ...string) []PortInfo {
@@ -98,6 +112,10 @@ func TopTCPPorts(num int, services ...string) []PortInfo {
 	}
 
 	return ports[:num]
+}
+
+func UDPPorts(services ...string) []PortInfo {
+	return Ports(UDP, services...)
 }
 
 func TopUDPPorts(num int, services ...string) []PortInfo {
