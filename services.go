@@ -84,7 +84,7 @@ func Ports(protocol Protocol, services ...string) []PortInfo {
 		}
 	}
 
-	sort.Slice(ports, func(i, j int) bool {
+	sort.SliceStable(ports, func(i, j int) bool {
 		return ports[i].Weight > ports[j].Weight
 	})
 
