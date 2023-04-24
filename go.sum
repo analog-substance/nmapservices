@@ -1,5 +1,7 @@
 github.com/analog-substance/fileutil v0.0.0-20230405231637-b9a0d0657f31 h1:fPYG64b7b3TkysdK0a6kBPRQpg6bmr//C+NwQop8drQ=
 github.com/analog-substance/fileutil v0.0.0-20230405231637-b9a0d0657f31/go.mod h1:h4AM9gesgW8iRKoGKFkJoSPKzEemDekUBYkVk6sKvfE=
+github.com/analog-substance/fileutil v0.0.1 h1:Teuymqtq66cKoduYr5TBpiEax2jzGfHFAUCagJefKGs=
+github.com/analog-substance/fileutil v0.0.1/go.mod h1:h4AM9gesgW8iRKoGKFkJoSPKzEemDekUBYkVk6sKvfE=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
